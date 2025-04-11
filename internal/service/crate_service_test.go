@@ -12,7 +12,6 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-// MockHTTPClient is a mock implementation of http.Client
 type MockHTTPClient struct {
 	mock.Mock
 }
@@ -75,12 +74,15 @@ func TestService_CheckVersion(t *testing.T) {
 			version:     "1.0.0",
 			setupMock: func() *httptest.Server {
 				return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-					json.NewEncoder(w).Encode(map[string]interface{}{
+					if err := json.NewEncoder(w).Encode(map[string]interface{}{
 						"versions": []map[string]string{
 							{"num": "1.0.1"},
 							{"num": "1.0.0"},
 						},
-					})
+					}); err != nil {
+						http.Error(w, err.Error(), http.StatusInternalServerError)
+						return
+					}
 				}))
 			},
 			wantResult: &Result{
@@ -95,12 +97,15 @@ func TestService_CheckVersion(t *testing.T) {
 			version:     "1.0.1",
 			setupMock: func() *httptest.Server {
 				return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-					json.NewEncoder(w).Encode(map[string]interface{}{
+					if err := json.NewEncoder(w).Encode(map[string]interface{}{
 						"versions": []map[string]string{
 							{"num": "1.0.1"},
 							{"num": "1.0.0"},
 						},
-					})
+					}); err != nil {
+						http.Error(w, err.Error(), http.StatusInternalServerError)
+						return
+					}
 				}))
 			},
 			wantResult: &Result{
@@ -163,9 +168,12 @@ func TestService_CheckVersion(t *testing.T) {
 			version:     "1.0.0",
 			setupMock: func() *httptest.Server {
 				return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-					json.NewEncoder(w).Encode(map[string]interface{}{
+					if err := json.NewEncoder(w).Encode(map[string]interface{}{
 						"versions": []map[string]string{},
-					})
+					}); err != nil {
+						http.Error(w, err.Error(), http.StatusInternalServerError)
+						return
+					}
 				}))
 			},
 			wantResult: nil,
