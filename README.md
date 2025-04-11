@@ -30,7 +30,7 @@ go run main.go
 ## 🔄 API Endpoints
 
 ### Crate Resource
-- `GET /api/crate/:name/:version` - Check if a new version of the specified crate is available
+- `GET /api/crates/:name/:version` - Check if a new version of the specified crate is available
 
 ## 🤝 Contributing
 
