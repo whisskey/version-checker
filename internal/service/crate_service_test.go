@@ -74,7 +74,7 @@ func TestService_CheckVersion(t *testing.T) {
 			version:     "1.0.0",
 			setupMock: func() *httptest.Server {
 				return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-					if err := json.NewEncoder(w).Encode(map[string]interface{}{
+					if err := json.NewEncoder(w).Encode(map[string]any{
 						"versions": []map[string]string{
 							{"num": "1.0.1"},
 							{"num": "1.0.0"},
