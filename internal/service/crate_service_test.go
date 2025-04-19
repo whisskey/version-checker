@@ -67,7 +67,9 @@ func (s *CrateServiceSuite) updateServer(handler http.Handler) {
 
 func (s *CrateServiceSuite) createSuccessHandler(versions []string) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Write(createVersionResponse(versions))
+		if _, err := w.Write(createVersionResponse(versions)); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
 	})
 }
 
@@ -80,7 +82,9 @@ func (s *CrateServiceSuite) createErrorHandler(status int) http.Handler {
 func (s *CrateServiceSuite) createTimeoutHandler(delay time.Duration, versions []string) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		time.Sleep(delay)
-		w.Write(createVersionResponse(versions))
+		if _, err := w.Write(createVersionResponse(versions)); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
 	})
 }
 
@@ -156,7 +160,9 @@ func (s *CrateServiceSuite) TestCheckVersion() {
 					NextPage: nil,
 				},
 			}
-			json.NewEncoder(w).Encode(response)
+			if err := json.NewEncoder(w).Encode(response); err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+			}
 		}))
 		result, err := s.svc.CheckVersion("serde", "1.0.0")
 
@@ -199,7 +205,9 @@ func (s *CrateServiceSuite) TestCheckVersion() {
 
 	s.Run("Should fail with invalid response body", func() {
 		s.updateServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			w.Write([]byte("invalid json"))
+			if _, err := w.Write([]byte("invalid json")); err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+			}
 		}))
 		_, err := s.svc.CheckVersion("serde", "1.0.0")
 
@@ -218,7 +226,9 @@ func (s *CrateServiceSuite) TestCheckVersion() {
 					Num string `json:"num"`
 				}{{Num: "invalid"}},
 			}
-			json.NewEncoder(w).Encode(response)
+			if err := json.NewEncoder(w).Encode(response); err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+			}
 		}))
 		_, err := s.svc.CheckVersion("serde", "1.0.0")
 
